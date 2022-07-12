@@ -4,13 +4,13 @@ ENV GO111MODULE=on
 
 WORKDIR /
 
-COPY . /go/src/github.com/ryokky59/go-layered-architecture-sample
+COPY . /go/src/github.com/katsukiniwa/practical-go-programming
 
 RUN apk update && apk add --no-cache git
-RUN cd /go/src/github.com/ryokky59/go-layered-architecture-sample/api && go build -o bin/sample main.go
+RUN cd /go/src/github.com/katsukiniwa/practical-go-programming && go build -o bin/practical-go-programming main.go
 
 FROM alpine:3.16
 
-COPY --from=build /go/src/github.com/ryokky59/go-layered-architecture-sample/api/bin/sample /usr/local/bin/
+COPY --from=build /go/src/github.com/katsukiniwa/practical-go-programming/api/bin/practical-go-programming /usr/local/bin/
 
-CMD ["sample"]
+CMD ["practical-go-programming"]
