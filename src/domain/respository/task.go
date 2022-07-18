@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"sample/domain/model"
+	"github.com/katsukiniwa/practical-go-programming/src/domain/model"
 )
 
 // TaskRepository task repositoryのinterface
