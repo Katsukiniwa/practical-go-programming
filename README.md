@@ -12,3 +12,4 @@ $ go mod tidy # go.sumが作成される
 ## 参考記事
 
 [GOPATH に(可能な限り)依存しない Go 開発環境(Go 1.15 版)](https://zenn.dev/tennashi/articles/3b87a8d924bc9c43573e)
+
