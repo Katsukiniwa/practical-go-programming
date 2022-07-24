@@ -29,14 +29,14 @@ func (ml *MovieRepository) MoviesDirectedBy(director string) []Movie {
 	return result
 }
 
-func NewMovieRepository() *MovieRepository {
+func NewMovieRepository(finder MovieFinder) *MovieRepository {
 	return &MovieRepository{
-		finder: NewColonDelimitedMovieFinder("movies.txt"),
+		finder: finder,
 	}
 }
 
-func NewColonDelimitedMovieFinder(arg string) *ColonDelimitedMovieFinder {
-	return &ColonDelimitedMovieFinder{
+func NewColonDelimitedMovieFinder(arg string) MovieFinder {
+	return ColonDelimitedMovieFinder{
 		file: arg,
 	}
 }
