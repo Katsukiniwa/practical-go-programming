@@ -27,4 +27,4 @@ jobs:
         #  args: --disable-all --enable=govet,errcheck,staticcheck,gosimple
 
       - name: test
-        run: go test -v ./...
+        run: go test -v ./playground
