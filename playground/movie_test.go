@@ -6,7 +6,8 @@ import (
 )
 
 func TestFindAll(t *testing.T) {
-	r := NewMovieRepository()
+	n := NewColonDelimitedMovieFinder("foo")
+	r := NewMovieRepository(n)
 	movies := r.finder.FindAll()
 	want := []Movie{{Director: "foo"}, {Director: "bar"}}
 	if !reflect.DeepEqual(movies, want) {
