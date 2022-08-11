@@ -32,4 +32,5 @@ func main() {
 	fmt.Print("Hello World")
 	ipFunc()
 	bar.Sample()
+	bar.DecodeIp()
 }
