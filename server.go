@@ -33,4 +33,7 @@ func main() {
 	ipFunc()
 	bar.Sample()
 	bar.DecodeIp()
+	bar.PrintUser()
+	bar.PrintFormInput()
+	bar.PrintBottle()
 }
