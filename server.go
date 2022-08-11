@@ -33,8 +33,8 @@ func main() {
 		switch r.Method {
 		case http.MethodGet:
 			/*
-			* 読み寄り時に書き込みかあることを考慮しロックする
-			* 本来はDBから読み取る処理を代替
+			 * 読み寄り時に書き込みかあることを考慮しロックする
+			 * 本来はDBから読み取る処理を代替
 			 */
 			mutex.RLock()
 

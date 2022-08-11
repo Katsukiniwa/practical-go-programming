@@ -1,4 +1,4 @@
-package main
+package playground
 
 type Wallet struct{}
 
