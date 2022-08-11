@@ -3,7 +3,7 @@ name: ci
 on:
   push:
     branches:
-        - "**"
+      - "**"
   pull_request: {}
 
 
@@ -20,11 +20,11 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-        #      - name: golangci-lint
-        #uses: golangci/golangci-lint-action@v2
-        #with:
-        #  version: v1.44.2
-        #  args: --disable-all --enable=govet,errcheck,staticcheck,gosimple
+      # - name: golangci-lint
+      #   uses: golangci/golangci-lint-action@v2
+      #   with:
+      #     version: v1.44.2
+      #     args: --disable-all --enable=govet,errcheck,staticcheck,gosimple
 
-      - name: test
+      - name: run test playground
         run: go test -v ./playground
