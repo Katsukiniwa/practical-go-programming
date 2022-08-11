@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/katsukiniwa/practical-go-programming/bar"
+	"github.com/katsukiniwa/practical-go-programming/baz"
 )
 
 type ip struct {
@@ -36,4 +37,5 @@ func main() {
 	bar.PrintUser()
 	bar.PrintFormInput()
 	bar.PrintBottle()
+	baz.Run()
 }
