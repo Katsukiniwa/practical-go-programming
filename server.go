@@ -22,7 +22,7 @@ type Comment struct {
 
 type Book struct {
 	Title string `validate:"required"`
-	Price int    `validate:"required"`
+	Price *int   `validate:"required"`
 }
 
 func main() {
@@ -36,6 +36,8 @@ func main() {
 
 	var mutex = &sync.RWMutex{}
 	comments := make([]Comment, 0, 100)
+
+	http.HandleFunc("/params", handleParams)
 
 	http.HandleFunc("/comments", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -102,6 +104,23 @@ func main() {
 	BookImpl()
 
 	http.ListenAndServe(":9000", nil)
+}
+
+func handleParams(w http.ResponseWriter, r *http.Request) {
+
+	// クエリパラメータ取得してみる
+	fmt.Fprintf(w, "クエリ：%s\n", r.URL.RawQuery)
+
+	// Bodyデータを扱う場合には、事前にパースを行う
+	r.ParseForm()
+
+	// Formデータを取得.
+	form := r.PostForm
+	fmt.Fprintf(w, "フォーム：\n%v\n", form)
+
+	// または、クエリパラメータも含めて全部.
+	params := r.Form
+	fmt.Fprintf(w, "フォーム2: \n%v\n", params)
 }
 
 func BookImpl() {
