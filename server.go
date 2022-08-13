@@ -54,6 +54,8 @@ func main() {
 
 	http.Handle("/health/new", middleware.WrapHandlerWithLogging(http.HandlerFunc(middleware.HealthCheck)))
 
+	http.Handle("/error", middleware.Recovery(http.HandlerFunc(middleware.PanicHealthCheck)))
+
 	http.ListenAndServe(":9000", nil)
 }
 

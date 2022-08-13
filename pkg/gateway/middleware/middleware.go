@@ -10,6 +10,10 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
 
+func PanicHealthCheck(w http.ResponseWriter, r *http.Request) {
+	panic("panic occur")
+}
+
 func MiddlewareLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("start %s\n", r.URL)
@@ -53,5 +57,19 @@ func WrapHandlerWithLogging(wrappedHandler http.Handler) http.Handler {
 		 * ステータスコードのロギング
 		 */
 		log.Printf("%d %s", statusCode, http.StatusText(statusCode))
+	})
+}
+
+func Recovery(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// recoverを使ってハンドラーで発生したpanicから復帰
+		defer func() {
+			if err := recover(); err != nil {
+				log.Println(err)
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+		}()
+
+		next.ServeHTTP(w, r)
 	})
 }
