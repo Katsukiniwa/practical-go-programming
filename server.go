@@ -50,7 +50,7 @@ func main() {
 
 	http.HandleFunc("/params", ParamsHandler)
 
-	http.Handle("health", http.HandlerFunc(middleware.HealthCheck))
+	http.Handle("/health", middleware.MiddlewareLogging(http.HandlerFunc(middleware.HealthCheck)))
 
 	http.ListenAndServe(":9000", nil)
 }
