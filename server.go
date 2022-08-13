@@ -17,13 +17,15 @@ func main() {
 
 	fmt.Printf("Server is Ready on :%d\n", appPort)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello World")
-	})
+	http.HandleFunc("/", RootHandler)
 
 	http.HandleFunc("/params", handleParams)
 
 	http.ListenAndServe(":9000", nil)
+}
+
+func RootHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "hello world")
 }
 
 func handleParams(w http.ResponseWriter, r *http.Request) {
