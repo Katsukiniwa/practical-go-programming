@@ -2,10 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,6 +20,11 @@ type Comment struct {
 	UserName string `validate:"required,min=1,max=15"`
 }
 
+type Book struct {
+	Title string `validate:"required"`
+	Price int    `validate:"required"`
+}
+
 func main() {
 	var appPort int
 	flag.IntVar(&appPort, "port", 9000, "port")
@@ -24,7 +32,7 @@ func main() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	fmt.Printf("Server is Ready on :%d", appPort)
+	fmt.Printf("Server is Ready on :%d\n", appPort)
 
 	var mutex = &sync.RWMutex{}
 	comments := make([]Comment, 0, 100)
@@ -59,7 +67,19 @@ func main() {
 			 */
 			validate := validator.New()
 			if err := validate.Struct(c); err != nil {
-				http.Error(w, fmt.Sprintf(`{"status":"%s"`, err), http.StatusBadRequest)
+				var out []string
+				var ve validator.ValidationErrors
+				if errors.As(err, &ve) {
+					for _, fe := range ve {
+						switch fe.Field() {
+						case "Message":
+							out = append(out, fmt.Sprintf("Message is 1~140"))
+						case "UserName":
+							out = append(out, fmt.Sprintf("UserName is 1~15"))
+						}
+					}
+				}
+				http.Error(w, fmt.Sprintf(`{"status":"%s"}`, strings.Join(out, ",")), http.StatusBadRequest)
 				return
 			}
 
@@ -79,5 +99,24 @@ func main() {
 		fmt.Fprintf(w, "Hello World")
 	})
 
+	BookImpl()
+
 	http.ListenAndServe(":9000", nil)
+}
+
+func BookImpl() {
+	s := `{"Title":"Real World HTTP ミニ版", "Price":0}`
+	var b Book
+	if err := json.Unmarshal([]byte(s), &b); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := validator.New().Struct(b); err != nil {
+		var ve validator.ValidationErrors // validatorの独自型に変換
+		if errors.As(err, &ve) {
+			for _, fe := range ve {
+				fmt.Printf("フィールド %s が %s 違反です(値: %v) \n", fe.Field(), fe.Tag(), fe.Value())
+			}
+		}
+	}
 }
