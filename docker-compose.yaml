@@ -11,16 +11,14 @@ services:
     tty: true
     restart: always
     depends_on:
-      - mysql
+      - db
 
-  mysql:
-    image: mysql:5.7
-    container_name: sample_db
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  db:
+    image: sample-api-db
+    container_name: sample-api-db
+    build: docker/mysql
     environment:
-      MYSQL_DATABASE: sample
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: katsukiniwa-password
+      TZ: "UTC"
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
