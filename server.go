@@ -11,7 +11,10 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/katsukiniwa/practical-go-programming/pkg/controller"
 	"github.com/katsukiniwa/practical-go-programming/pkg/gateway/middleware"
+	"github.com/katsukiniwa/practical-go-programming/pkg/gateway/repository"
+	"github.com/katsukiniwa/practical-go-programming/pkg/gateway/router"
 )
 
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +24,7 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	var appPort int
-	flag.IntVar(&appPort, "port", 9000, "port")
+	flag.IntVar(&appPort, "port", 9001, "port")
 	flag.Parse()
 
 	rand.Seed(time.Now().UnixNano())
@@ -59,9 +62,14 @@ func main() {
 
 	http.Handle("/error", middleware.Recovery(http.HandlerFunc(middleware.PanicHealthCheck)))
 
+	var tr = repository.NewArticleRepository()
+	var tc = controller.NewArticleController(tr)
+	var ro = router.NewRouter(tc)
+	http.HandleFunc("/articles/", ro.HandleArticleRequest)
+
 	UserRequest()
 
-	http.ListenAndServe(":9000", nil)
+	http.ListenAndServe(":9001", nil)
 }
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
