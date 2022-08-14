@@ -1,16 +1,22 @@
-FROM golang:1.17.11-alpine3.16 AS build
+FROM golang:1.17.1-alpine as builder
 
-ENV GO111MODULE=on
+RUN apk update && apk upgrade && \
+  apk --update add git make
 
-WORKDIR /
+WORKDIR /app
 
-COPY . /go/src/github.com/katsukiniwa/practical-go-programming
+COPY . .
 
-RUN apk update && apk add --no-cache git
-RUN cd /go/src/github.com/katsukiniwa/practical-go-programming && go build -o bin/practical-go-programming main.go
+RUN CGO_ENABLED=0 go build -o engine server.go
 
-FROM alpine:3.16
+FROM alpine:latest
 
-COPY --from=build /go/src/github.com/katsukiniwa/practical-go-programming/api/bin/practical-go-programming /usr/local/bin/
+RUN apk update && apk upgrade && \
+  apk --update --no-cache add tzdata && \
+  mkdir /app
 
-CMD ["practical-go-programming"]
+WORKDIR /app
+
+COPY --from=builder /app/engine /app
+
+CMD /app/engine
