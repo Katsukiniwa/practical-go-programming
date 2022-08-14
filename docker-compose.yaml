@@ -2,9 +2,11 @@ version: '3'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
     ports:
-      - 8080:8080
+      - 9001:9001
     container_name: sample_app
     volumes:
       - ./:/go
