@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"time"
@@ -56,6 +59,8 @@ func main() {
 
 	http.Handle("/error", middleware.Recovery(http.HandlerFunc(middleware.PanicHealthCheck)))
 
+	UserRequest()
+
 	http.ListenAndServe(":9000", nil)
 }
 
@@ -78,4 +83,37 @@ func ParamsHandler(w http.ResponseWriter, r *http.Request) {
 	// または、クエリパラメータも含めて全部.
 	params := r.Form
 	fmt.Fprintf(w, "フォーム2: \n%v\n", params)
+}
+
+type User struct {
+	Name    string
+	Address string
+}
+
+func UserRequest() {
+	u := User{
+		Name:    "オライリー",
+		Address: "東京都新宿区四谷坂町",
+	}
+
+	payload, err := json.Marshal(u)
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	resp, err := http.Post("http://example.com", "application/json", bytes.NewBuffer(payload))
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	getResp, err := http.Get("https://next-rails-playground.herokuapp.com/categories")
+	if err != nil {
+		fmt.Printf("%s", err)
+	}
+	defer getResp.Body.Close()
+	byteArray, _ := ioutil.ReadAll(getResp.Body)
+	stringByteArray := string(byteArray)
+	fmt.Println(stringByteArray)
+
+	defer resp.Body.Close()
 }
