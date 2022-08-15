@@ -1,5 +1,7 @@
 package playground
 
-func Search(dictionary map[string]string, word string) string {
+type Dictionary map[string]string
+
+func Search(dictionary Dictionary, word string) string {
 	return dictionary[word]
 }
