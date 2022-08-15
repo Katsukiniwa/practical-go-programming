@@ -1,6 +1,8 @@
 package playground
 
-type Wallet struct{}
+type Wallet struct {
+	balance int
+}
 
 func (w Wallet) Deposit(amount int) {
 
