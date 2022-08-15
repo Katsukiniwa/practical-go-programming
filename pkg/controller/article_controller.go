@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	// "path"
 	"strconv"
 
 	"github.com/katsukiniwa/practical-go-programming/pkg/entity"
