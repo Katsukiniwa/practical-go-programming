@@ -1,20 +1,19 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/katsukiniwa/practical-go-programming/pkg/controller"
-	"github.com/katsukiniwa/practical-go-programming/pkg/gateway/middleware"
-	"github.com/katsukiniwa/practical-go-programming/pkg/gateway/repository"
-	"github.com/katsukiniwa/practical-go-programming/pkg/gateway/router"
+	"entgo.io/ent/dialect"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/katsukiniwa/practical-go-programming/ent"
+	"github.com/katsukiniwa/practical-go-programming/ent/migrate"
 )
 
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
@@ -31,97 +30,47 @@ func main() {
 
 	fmt.Printf("Server is Ready on :%d\n", appPort)
 
-	yes := 0
-	no := 0
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+	)
 
-	r := chi.NewRouter()
+	client, err := ent.Open(dialect.MySQL, dsn)
+	if err != nil {
+		log.Fatalf("failed opening connection to mysql: %v", err)
+	}
+	defer client.Close()
+	ctx := context.Background()
+	if err := client.Schema.Create(ctx, migrate.WithForeignKeys(false)); err != nil {
+		log.Fatalf("failed printing schema changes: %v", err)
+	}
+	log.Print("ent sample done.")
 
-	/*
-	 * answer handler
-	 */
-	r.Post("/poll/{answer}", func(w http.ResponseWriter, r *http.Request) {
-		if chi.URLParam(r, "answer") == "y" {
-			yes++
-		} else {
-			no++
-		}
-	})
+	cmp, err := client.Debug().Company.
+		Create().
+		SetName("companyA").
+		Save(ctx)
+	if err != nil {
+		log.Fatalf("failed create company: %v", err)
+	}
+	log.Printf("cmp: %+v", cmp)
+	usr, err := client.Debug().User.
+		Create().
+		SetFirstName("first name").
+		SetLastName("last name").
+		SetAge(20).
+		SetEmail("example@example.co.jp").
+		SetCompany(cmp).
+		Save(ctx)
+	if err != nil {
+		log.Fatalf("failed create user: %v", err)
+	}
+	log.Printf("user: %+v", usr)
 
-	r.Get("/result", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "賛成: %d, 反対: %d", yes, no)
-	})
-	r.Handle("/asset/*", http.StripPrefix("/asset/", http.FileServer(http.Dir("."))))
-
-	http.HandleFunc("/", RootHandler)
-
-	http.HandleFunc("/params", ParamsHandler)
-
-	http.Handle("/health", middleware.MiddlewareLogging(http.HandlerFunc(middleware.HealthCheck)))
-
-	http.Handle("/health/new", middleware.WrapHandlerWithLogging(http.HandlerFunc(middleware.HealthCheck)))
-
-	http.Handle("/error", middleware.Recovery(http.HandlerFunc(middleware.PanicHealthCheck)))
-
-	var tr = repository.NewArticleRepository()
-	var tc = controller.NewArticleController(tr)
-	var ro = router.NewRouter(tc)
-	http.HandleFunc("/articles/", ro.HandleArticleRequest)
-
-	UserRequest()
-
+	log.Print("ent sample done.")
 	http.ListenAndServe(":9001", nil)
-}
-
-func RootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "hello world")
-}
-
-func ParamsHandler(w http.ResponseWriter, r *http.Request) {
-
-	// クエリパラメータ取得してみる
-	fmt.Fprintf(w, "クエリ：%s\n", r.URL.RawQuery)
-
-	// Bodyデータを扱う場合には、事前にパースを行う
-	r.ParseForm()
-
-	// Formデータを取得.
-	form := r.PostForm
-	fmt.Fprintf(w, "フォーム：\n%v\n", form)
-
-	// または、クエリパラメータも含めて全部.
-	params := r.Form
-	fmt.Fprintf(w, "フォーム2: \n%v\n", params)
-}
-
-type User struct {
-	Name    string
-	Address string
-}
-
-func UserRequest() {
-	u := User{
-		Name:    "オライリー",
-		Address: "東京都新宿区四谷坂町",
-	}
-
-	payload, err := json.Marshal(u)
-	if err != nil {
-		fmt.Print(err)
-	}
-
-	resp, err := http.Post("http://example.com", "application/json", bytes.NewBuffer(payload))
-	if err != nil {
-		fmt.Print(err)
-	}
-
-	getResp, err := http.Get("https://next-rails-playground.herokuapp.com/categories")
-	if err != nil {
-		fmt.Printf("%s", err)
-	}
-	defer getResp.Body.Close()
-	byteArray, _ := ioutil.ReadAll(getResp.Body)
-	stringByteArray := string(byteArray)
-	fmt.Println(stringByteArray)
-
-	defer resp.Body.Close()
 }

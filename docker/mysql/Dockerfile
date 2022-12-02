@@ -1,8 +1,7 @@
-FROM mysql:8.0.25
-# FROM --platform=linux/amd64 library/mysql:8.0.25
+FROM mysql:8.0
 
-ENV MYSQL_DATABASE todo
+ENV MYSQL_DATABASE ent_sample
 
 COPY custom.cnf /etc/mysql/conf.d/
 
-COPY sql /docker-entrypoint-initdb.d
+# COPY sql /docker-entrypoint-initdb.d

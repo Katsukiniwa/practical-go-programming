@@ -1,4 +1,4 @@
-CREATE USER 'user-katsukiniwa' @'%' IDENTIFIED BY 'katsukiniwa-password';
+CREATE USER 'user-katsukiniwa' @'%' IDENTIFIED BY 'password';
 GRANT SELECT,
   INSERT,
   UPDATE,
